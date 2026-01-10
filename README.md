@@ -11,26 +11,14 @@ We developed a **Semi-Supervised Pipeline** that detects hallucinations with hig
 
 ---
 
-## Architecture & Methodology
+## Architecture: Hybrid Ensemble
 
-### 1. The "Teacher": Zero-Shot Pseudo-Labeling
-We utilized **Mistral-7B** (via Zero-Shot Prompting) to act as a "Teacher."
-*   We fed it unlabelled text and asked it to distinguish between factual statements and hallucinations.
-*   This process generated **Pseudo-Labels**, effectively creating a synthetic dataset from scratch.
+We combined synthetic and gold data streams to maximize performance.
 
-### 2. The "Student": Ensemble Classification
-We used the synthetic data to train a robust ensemble model, combining the semantic understanding of Transformers with the statistical power of Gradient Boosting.
-
-*   **Deep Learning Layer:** We fine-tuned **Multilingual DeBERTa-v3** to extract semantic embeddings from the text. DeBERTa was chosen for its superior performance on NLI (Natural Language Inference) tasks compared to BERT/RoBERTa.
-*   **Boosting Layer:** We fed these embeddings into **CatBoost**, which learned to classify the final output based on the feature vectors.
-
----
-
-## Key Results
-
-*   **Accuracy:** The final ensemble model achieved an accuracy of **78%**, significantly outperforming the baseline.
-*   **Data Efficiency:** Proved that robust safety monitors can be trained using **unlabeled data** by leveraging larger LLMs as annotators.
-*   **Performance:** The combination of DeBERTa (Semantic) and CatBoost (Decision Trees) captured edge cases that single architectures missed.
+1.  **Pseudo-Labeling (Mistral-7B):** Used Zero-Shot prompting to generate synthetic labels for unlabeled text.
+2.  **DeBERTa-v3:** Fine-tuned on the **Synthetic Data** to learn general semantic patterns from high-volume, noisy input.
+3.  **CatBoost:** Trained exclusively on **Gold (Validation) Data** to anchor predictions to human-verified ground truth.
+4.  **Final Output:** A weighted ensemble of both models, achieving **78% Accuracy**.
 
 ---
 
